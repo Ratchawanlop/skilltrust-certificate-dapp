@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillTrust Academy - Digital Certificate</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"
+        type="application/javascript"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --secondary: #7c3aed;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --danger-light: #fef2f2;
+            --success: #10b981;
+            --success-light: #ecfdf5;
+            --warning: #f59e0b;
+            --warning-light: #fffbeb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 10px 25px -5px rgba(79, 70, 229, 0.15), 0 8px 10px -6px rgba(79, 70, 229, 0.1);
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(124, 58, 237, 0.08) 0px, transparent 50%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 32px 20px 60px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .badge-header {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 999px;
+            margin-bottom: 12px;
+            letter-spacing: 0.3px;
+        }
+
+        .header h1 {
+            color: var(--text-main);
+            margin: 0 0 8px 0;
+            font-weight: 700;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        /* Top Connection Bar (Wallet + Contract Config) */
+        .connection-panel {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 24px 28px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .connection-panel::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .wallet-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .wallet-status-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #fbbf24;
+            box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.25);
+            transition: 0.3s;
+        }
+
+        .status-dot.connected {
+            background-color: #34d399;
+            box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.25);
+        }
+
+        .wallet-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .wallet-address-pill {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(6px);
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            word-break: break-all;
+        }
+
+        .btn-connect {
+            background: white;
+            color: var(--primary);
+            border: none;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-family: inherit;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-connect:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Contract Address Row inside Top Panel */
+        .contract-config-row {
+            background: rgba(15, 23, 42, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 12px;
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .contract-config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .contract-status-badge {
+            font-size: 0.78rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-weight: 400;
+        }
+
+        .contract-input-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .contract-input-group input {
+            flex: 1;
+            min-width: 240px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid transparent;
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 10px 14px;
+            border-radius: 8px;
+        }
+
+        .contract-input-group input:focus {
+            background: #ffffff;
+            border-color: #a5b4fc;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-set-contract {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-set-contract:hover {
+            background: rgba(255, 255, 255, 0.32);
+        }
+
+        /* Toast Notification */
+        #toastContainer {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 380px;
+        }
+
+        .toast {
+            background: var(--card-bg);
+            color: var(--text-main);
+            padding: 14px 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            border-left: 5px solid var(--primary);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            animation: slideIn 0.25s ease-out;
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Grid Layout for Cards */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .wallet-row {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .wallet-status-group {
+                justify-content: center;
+            }
+
+            .btn-connect {
+                justify-content: center;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            padding: 26px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.06);
+        }
+
+        .card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .card-icon.danger {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .card-icon.success {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .card-icon.warning {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin: 0;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 2px 0 0 0;
+        }
+
+        .role-tag {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .role-tag.admin {
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+
+        .role-tag.issuer {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .role-tag.privacy {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .role-tag.public {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.86rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.92rem;
+            transition: all 0.2s;
+            background-color: #f8fafc;
+            color: var(--text-main);
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12);
+        }
+
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 500px) {
+            .form-row-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 12px 18px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            font-family: inherit;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-hover);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-outline {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1.5px solid rgba(79, 70, 229, 0.25);
+            font-weight: 600;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #0f172a;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #1e293b;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+        }
+
+        /* Results Display */
+        .result-box {
+            margin-top: 18px;
+            padding: 18px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
+            border-radius: 10px;
+            font-size: 0.92rem;
+            display: none;
+            word-break: break-all;
+        }
+
+        .verify-layout {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .result-grid {
+            display: grid;
+            gap: 10px;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .qr-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .qr-box img {
+            width: 120px;
+            height: 120px;
+            border-radius: 6px;
+        }
+
+        .qr-caption {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        .result-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .result-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .result-value {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .mono {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.86rem;
+        }
+
+        .status-valid {
+            color: #065f46;
+            font-weight: 600;
+            padding: 4px 12px;
+            background: #d1fae5;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            width: fit-content;
+        }
+
+        .status-revoked {
+            color: #991b1b;
+            font-weight: 600;
+            padding: 4px 12px;
+            background: #fee2e2;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            width: fit-content;
+        }
+
+        .cert-badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .cert-item-pill {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 500;
+            color: var(--primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .cert-item-pill:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .hash-preview-box {
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            color: var(--text-main);
+            margin-top: 10px;
+            word-break: break-all;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="badge-header">🎓 Blockchain Digital Certificate Verification System</div>
+            <h1>SkillTrust Academy</h1>
+            <p>ระบบออกและตรวจสอบใบรับรองดิจิทัลบน Ethereum Smart Contract</p>
+        </header>
+
+        <!-- Connection & Contract Address Panel -->
+        <section class="connection-panel">
+            <div class="wallet-row">
+                <div class="wallet-status-group">
+                    <span id="statusDot" class="status-dot"></span>
+                    <span class="wallet-label">Wallet Address:</span>
+                    <span id="walletAddress" class="wallet-address-pill">Not connected</span>
+                </div>
+                <button id="connectWalletBtn" class="btn-connect" onclick="connectWallet()">
+                    🔗 Connect MetaMask
+                </button>
+            </div>
+
+            <!-- งานที่ 1: ให้ User สามารถกรอก Contract Address เองได้ -->
+            <div class="contract-config-row">
+                <div class="contract-config-header">
+                    <span>⚙️ ตั้งค่า Smart Contract Address (สามารถระบุเองได้)</span>
+                    <span id="contractStatusBadge" class="contract-status-badge">ค่าเริ่มต้นถูกโหลดแล้ว</span>
+                </div>
+                <div class="contract-input-group">
+                    <input type="text" id="contractAddressInput" value="0x557ac564eB184482e08AfA6f3Df3c491D709C18D"
+                        placeholder="กรอก Contract Address (0x...)" onchange="updateContractAddress()">
+                    <button class="btn-set-contract" onclick="updateContractAddress()">
+                        อัปเดต Contract
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Grid Layout (ครบทั้ง 6 ฟังก์ชันตามโจทย์) -->
+        <div class="grid-layout">
+
+            <!-- 1. ลงทะเบียนหลักสูตร (Create Training Course) -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-icon">📚</div>
+                            <div>
+                                <h2>1. ลงทะเบียนหลักสูตร (Create Training Course)</h2>
+                                <p class="card-subtitle">ผู้ดูแลระบบสร้างหลักสูตร รหัสหลักสูตร และรายละเอียดการอบรม</p>
+                            </div>
+                        </div>
+                        <span class="role-tag admin">Admin</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="courseId">รหัสหลักสูตร (Course ID)</label>
+                        <input type="text" id="courseId" placeholder="เช่น AI-101, CYBER-2026">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="courseDetails">รายละเอียดการอบรม (Course Details)</label>
+                        <input type="text" id="courseDetails" placeholder="เช่น AI & Data Analytics Intensive Bootcamp">
+                    </div>
+                </div>
+
+                <button class="btn" onclick="createCourse()">
+                    ➕ ลงทะเบียนหลักสูตร (Create Course)
+                </button>
+            </div>
+
+            <!-- 2. ออกใบรับรอง (Issue Certificate) -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-icon">🏅</div>
+                            <div>
+                                <h2>2. ออกใบรับรอง (Issue Certificate)</h2>
+                                <p class="card-subtitle">ออกใบรับรองพร้อมรหัสอ้างอิง วันที่ออก ผู้รับ และบันทึก Hash
+                                    บนเชน</p>
+                            </div>
+                        </div>
+                        <span class="role-tag issuer">Issuer</span>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label for="issueCertId">รหัสอ้างอิงใบรับรอง (Cert ID)</label>
+                            <input type="text" id="issueCertId" placeholder="เช่น CERT-2026-001">
+                        </div>
+                        <div class="form-group">
+                            <label for="issueCourseId">รหัสหลักสูตร (Course ID)</label>
+                            <input type="text" id="issueCourseId" placeholder="เช่น AI-101">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipientAddress">Address ผู้รับใบรับรอง (Recipient Wallet)</label>
+                        <input type="text" id="recipientAddress" placeholder="0x...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="certHash">Certificate Hash (หลักฐานยืนยันเอกสารไม่ถูกแก้ไข)</label>
+                        <input type="text" id="certHash" placeholder="0x... (กดสร้างจากหัวข้อที่ 3 หรือวาง Hash เอง)">
+                    </div>
+                </div>
+
+                <button class="btn" onclick="issueCertificate()">
+                    ✨ ออกใบรับรองและบันทึกบน Blockchain
+                </button>
+            </div>
+
+            <!-- 3. บันทึกหลักฐานบน Blockchain / สร้าง Certificate Hash (Store Certificate Hash) -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-icon warning">🔐</div>
+                            <div>
+                                <h2>3. เตรียมรหัสหลักฐาน (Store Certificate Hash)</h2>
+                                <p class="card-subtitle">แปลงข้อมูลผู้เรียนเป็นค่า Hash
+                                    เพื่อปกป้องข้อมูลส่วนบุคคลก่อนขึ้นเชน</p>
+                            </div>
+                        </div>
+                        <span class="role-tag privacy">PDPA Privacy</span>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label for="holderName">ชื่อ-นามสกุลผู้รับ (Off-chain)</label>
+                            <input type="text" id="holderName" placeholder="เช่น สมชาย ใจดี">
+                        </div>
+                        <div class="form-group">
+                            <label for="holderScore">ผลคะแนน / ข้อมูลเอกสาร PDF</label>
+                            <input type="text" id="holderScore" placeholder="เช่น Pass (95%)">
+                        </div>
+                    </div>
+
+                    <div id="generatedHashPreview" class="hash-preview-box mono"></div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="generateCertHash()">
+                    🛡️ สร้างค่า Hash และส่งไปยังฟอร์มออกใบรับรอง
+                </button>
+            </div>
+
+            <!-- 4. ตรวจสอบความถูกต้อง (Verify Certificate) -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-icon success">🔍</div>
+                            <div>
+                                <h2>4. ตรวจสอบความถูกต้อง (Verify Certificate)</h2>
+                                <p class="card-subtitle">ค้นหาด้วยรหัสใบรับรอง หรือสแกน QR Code เพื่อตรวจสอบสถานะ</p>
+                            </div>
+                        </div>
+                        <span class="role-tag public">Public / Employer</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="verifyCertId">รหัสใบรับรอง (Cert ID)</label>
+                        <input type="text" id="verifyCertId" placeholder="กรอกรหัสใบรับรอง เช่น CERT-2026-001">
+                    </div>
+
+                    <button class="btn btn-outline" onclick="verifyCertificate()">
+                        🔎 ตรวจสอบสถานะใบรับรอง & สร้าง QR Code
+                    </button>
+
+                    <div id="verifyResult" class="result-box"></div>
+                </div>
+            </div>
+
+            <!-- 5. เพิกถอนใบรับรอง (Revoke Certificate) -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-icon danger">🚫</div>
+                            <div>
+                                <h2>5. เพิกถอนใบรับรอง (Revoke Certificate)</h2>
+                                <p class="card-subtitle">ยกเลิกใบรับรองที่ออกผิดพลาดหรือทุจริต โดยยังคงประวัติการออกไว้
+                                </p>
+                            </div>
+                        </div>
+                        <span class="role-tag issuer">Admin / Issuer</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="revokeCertId">รหัสใบรับรองที่ต้องการยกเลิก (Cert ID)</label>
+                        <input type="text" id="revokeCertId" placeholder="กรอกรหัสใบรับรองที่ต้องการเพิกถอน">
+                    </div>
+                </div>
+
+                <button class="btn btn-danger" onclick="revokeCertificate()">
+                    ⚠️ เพิกถอนใบรับรอง (Revoke Certificate)
+                </button>
+            </div>
+
+            <!-- 6. แสดงประวัติใบรับรอง (Certificate Dashboard) -->
+            <div class="card">
+                <div>
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-icon">🎓</div>
+                            <div>
+                                <h2>6. แสดงประวัติใบรับรอง (Certificate Dashboard)</h2>
+                                <p class="card-subtitle">ผู้เข้าอบรมเชื่อมต่อ Wallet
+                                    เพื่อดูรายการใบรับรองที่ผูกกับบัญชีของตน</p>
+                            </div>
+                        </div>
+                        <span class="role-tag public">Trainee Wallet</span>
+                    </div>
+
+                    <p style="font-size: 0.86rem; color: var(--text-muted); margin-top: 0;">
+                        คลิกปุ่มด้านล่างเพื่อดึงรายการใบรับรองทั้งหมดของบัญชี Wallet ที่เชื่อมต่ออยู่ในขณะนี้
+                    </p>
+
+                    <div id="myCertsResult" class="result-box"></div>
+                </div>
+
+                <button class="btn btn-outline" onclick="getMyCerts()">
+                    📂 โหลดใบรับรองของฉัน (My Certificates)
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <script>
+        const CONTRACT_ABI = [
+            "function createCourse(string memory _courseId, string memory _details) public",
+            "function issueCertificate(string memory _certId, string memory _courseId, address _recipient, string memory _certHash) public",
+            "function verifyCertificate(string memory _certId) public view returns (string memory courseId, address recipient, string memory certHash, uint256 issueDate, bool isValid)",
+            "function revokeCertificate(string memory _certId) public",
+            "function getMyCertificates() public view returns (string[] memory)"
+        ];
+
+        let provider, signer, contract;
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toastContainer");
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transition = "opacity 0.3s ease";
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function getContractAddress() {
+            return document.getElementById("contractAddressInput").value.trim();
+        }
+
+        function initContractInstance() {
+            const address = getContractAddress();
+            const badge = document.getElementById("contractStatusBadge");
+
+            if (!ethers.utils.isAddress(address)) {
+                badge.innerText = "⚠️ รูปแบบ Address ไม่ถูกต้อง";
+                badge.style.background = "rgba(239, 68, 68, 0.4)";
+                contract = null;
+                return false;
+            }
+
+            badge.innerText = `ใช้งาน: ${address.slice(0, 6)}...${address.slice(-4)}`;
+            badge.style.background = "rgba(16, 185, 129, 0.35)";
+
+            if (signer) {
+                contract = new ethers.Contract(address, CONTRACT_ABI, signer);
+            } else if (provider) {
+                contract = new ethers.Contract(address, CONTRACT_ABI, provider);
+            }
+            return true;
+        }
+
+        function updateContractAddress() {
+            const isValid = initContractInstance();
+            if (isValid) {
+                showToast("อัปเดต Contract Address เรียบร้อยแล้ว!", "success");
+            } else {
+                showToast("รูปแบบ Contract Address ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง", "error");
+            }
+        }
+
+        // ฟังก์ชันข้อ 3: คำนวณ Keccak-256 Hash จากข้อมูลผู้เรียนเพื่อปกป้องข้อมูลส่วนบุคคล
+        function generateCertHash() {
+            const name = document.getElementById("holderName").value.trim();
+            const score = document.getElementById("holderScore").value.trim();
+            const certId = document.getElementById("issueCertId").value.trim();
+            const courseId = document.getElementById("issueCourseId").value.trim();
+
+            if (!name) {
+                showToast("กรุณากรอกชื่อ-นามสกุลผู้รับเพื่อสร้างค่า Hash", "error");
+                return;
+            }
+
+            const rawData = `${name}|${score}|${certId}|${courseId}`;
+            const hashValue = ethers.utils.id(rawData);
+
+            document.getElementById("certHash").value = hashValue;
+
+            const preview = document.getElementById("generatedHashPreview");
+            preview.style.display = "block";
+            preview.innerHTML = `<strong>ข้อมูลต้นฉบับ (ไม่ส่งขึ้นเชน):</strong> ${rawData}<br><strong>Keccak-256 Hash:</strong> ${hashValue}`;
+
+            showToast("สร้าง Certificate Hash และใส่ในช่องออกใบรับรองแล้ว!", "success");
+        }
+
+        async function ensureConnected() {
+            if (!signer) {
+                await connectWallet();
+            }
+            if (!contract) {
+                const ok = initContractInstance();
+                if (!ok) throw new Error("กรุณาระบุ Contract Address ให้ถูกต้อง");
+            }
+        }
+
+        async function connectWallet() {
+            if (window.ethereum) {
+                try {
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    await provider.send("eth_requestAccounts", []);
+                    signer = provider.getSigner();
+                    const address = await signer.getAddress();
+
+                    document.getElementById("walletAddress").innerText = address;
+                    document.getElementById("statusDot").classList.add("connected");
+                    document.getElementById("connectWalletBtn").innerHTML = "✅ Connected";
+
+                    initContractInstance();
+                    showToast("เชื่อมต่อกระเป๋าเงินสำเร็จ!", "success");
+                } catch (error) {
+                    console.error(error);
+                    showToast("การเชื่อมต่อถูกยกเลิกหรือเกิดข้อผิดพลาด", "error");
+                }
+            } else {
+                alert("กรุณาติดตั้งส่วนขยาย MetaMask ก่อนใช้งาน!");
+            }
+        }
+
+        async function createCourse() {
+            try {
+                await ensureConnected();
+                const id = document.getElementById("courseId").value.trim();
+                const details = document.getElementById("courseDetails").value.trim();
+                if (!id || !details) {
+                    showToast("กรุณากรอกรหัสและรายละเอียดหลักสูตรให้ครบถ้วน", "error");
+                    return;
+                }
+                showToast("กำลังส่งธุรกรรมสร้างหลักสูตร...");
+                const tx = await contract.createCourse(id, details);
+                await tx.wait();
+                showToast("สร้างหลักสูตรสำเร็จ! (Course created)", "success");
+            } catch (error) {
+                console.error(error);
+                alert("Error: " + (error.reason || error.message));
+            }
+        }
+
+        async function issueCertificate() {
+            try {
+                await ensureConnected();
+                const certId = document.getElementById("issueCertId").value.trim();
+                const courseId = document.getElementById("issueCourseId").value.trim();
+                const recipient = document.getElementById("recipientAddress").value.trim();
+                const hash = document.getElementById("certHash").value.trim();
+
+                if (!certId || !courseId || !recipient || !hash) {
+                    showToast("กรุณากรอกข้อมูลออกใบรับรองให้ครบทุกช่อง", "error");
+                    return;
+                }
+                showToast("กำลังส่งธุรกรรมออกใบรับรอง...");
+                const tx = await contract.issueCertificate(certId, courseId, recipient, hash);
+                await tx.wait();
+                showToast("ออกใบรับรองสำเร็จ! (Certificate issued)", "success");
+            } catch (error) {
+                console.error(error);
+                alert("Error: " + (error.reason || error.message));
+            }
+        }
+
+        async function verifyCertificate() {
+            try {
+                await ensureConnected();
+                const certId = document.getElementById("verifyCertId").value.trim();
+                if (!certId) {
+                    showToast("กรุณากรอกรหัสใบรับรองที่ต้องการตรวจสอบ", "error");
+                    return;
+                }
+                const result = await contract.verifyCertificate(certId);
+                const date = new Date(result.issueDate * 1000).toLocaleString('th-TH');
+                const resDiv = document.getElementById("verifyResult");
+
+                // สร้างลิงก์พร้อมพารามิเตอร์ ?certId=... สำหรับสแกน QR Code เพื่อตรวจสอบทันที
+                const verifyUrl = `${window.location.origin}${window.location.pathname}?certId=${encodeURIComponent(certId)}`;
+                const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verifyUrl)}`;
+
+                resDiv.style.display = "block";
+                resDiv.innerHTML = `
+                    <div class="verify-layout">
+                        <div class="result-grid">
+                            <div class="result-item">
+                                <span class="result-label">สถานะใบรับรอง (Status)</span>
+                                <div>
+                                    ${result.isValid
+                        ? "<span class='status-valid'>✅ VALID (มีผลใช้งาน)</span>"
+                        : "<span class='status-revoked'>❌ REVOKED (ถูกเพิกถอน)</span>"}
+                                </div>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">รหัสใบรับรอง (Cert ID)</span>
+                                <span class="result-value">${certId}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">รหัสหลักสูตร (Course ID)</span>
+                                <span class="result-value">${result.courseId}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">ผู้รับ (Recipient Address)</span>
+                                <span class="result-value mono">${result.recipient}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Certificate Hash</span>
+                                <span class="result-value mono">${result.certHash}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">วันที่ออกใบรับรอง (Issue Date)</span>
+                                <span class="result-value">${date}</span>
+                            </div>
+                        </div>
+                        <div class="qr-box">
+                            <img src="${qrApiUrl}" alt="QR Code สำหรับตรวจสอบใบรับรอง">
+                            <span class="qr-caption">📱 QR Code ตรวจสอบ<br>(${certId})</span>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error(error);
+                alert("ไม่พบข้อมูลใบรับรอง หรือเกิดข้อผิดพลาดในการตรวจสอบ");
+            }
+        }
+
+        async function revokeCertificate() {
+            try {
+                await ensureConnected();
+                const certId = document.getElementById("revokeCertId").value.trim();
+                if (!certId) {
+                    showToast("กรุณากรอกรหัสใบรับรองที่ต้องการเพิกถอน", "error");
+                    return;
+                }
+                showToast("กำลังส่งธุรกรรมเพิกถอนใบรับรอง...");
+                const tx = await contract.revokeCertificate(certId);
+                await tx.wait();
+                showToast("เพิกถอนใบรับรองเรียบร้อยแล้ว!", "success");
+            } catch (error) {
+                console.error(error);
+                alert("Error: " + (error.reason || error.message));
+            }
+        }
+
+        function quickVerify(certId) {
+            document.getElementById("verifyCertId").value = certId;
+            verifyCertificate();
+        }
+
+        async function getMyCerts() {
+            try {
+                await ensureConnected();
+                const certs = await contract.getMyCertificates();
+                const resDiv = document.getElementById("myCertsResult");
+                resDiv.style.display = "block";
+
+                if (certs.length > 0) {
+                    const pills = certs.map(c =>
+                        `<span class="cert-item-pill" onclick="quickVerify('${c}')" title="คลิกเพื่อตรวจสอบใบรับรองนี้">📜 ${c}</span>`
+                    ).join("");
+                    resDiv.innerHTML = `
+                        <div class="result-label">พบใบรับรองทั้งหมด ${certs.length} รายการ (คลิกที่รหัสเพื่อตรวจสอบ):</div>
+                        <div class="cert-badge-list">${pills}</div>
+                    `;
+                } else {
+                    resDiv.innerHTML = `<span style="color: var(--text-muted);">ไม่พบใบรับรองในระบบสำหรับกระเป๋าเงินนี้</span>`;
+                }
+            } catch (error) {
+                console.error(error);
+                alert("เกิดข้อผิดพลาดในการดึงข้อมูลใบรับรอง");
+            }
+        }
+
+        // รองรับการเปิดหน้าเว็บจากการสแกน QR Code (?certId=...)
+        window.addEventListener("DOMContentLoaded", () => {
+            const params = new URLSearchParams(window.location.search);
+            const certIdFromQr = params.get("certId");
+            if (certIdFromQr) {
+                document.getElementById("verifyCertId").value = certIdFromQr;
+                showToast(`โหลดรหัสใบรับรอง ${certIdFromQr} จาก QR Code แล้ว กดปุ่มตรวจสอบได้เลย!`);
+            }
+        });
+    </script>
+
+</body>
+
+</html>
