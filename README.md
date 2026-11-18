@@ -24,7 +24,7 @@
 2. **ส่วนขยายกระเป๋าเงินดิจิทัล [MetaMask](https://metamask.io/)** ติดตั้งลงในเบราว์เซอร์
 3. **เหรียญสำหรับค่าธรรมเนียม (Testnet ETH)** ในกระเป๋า MetaMask บนเครือข่ายที่ Smart Contract ถูก Deploy ไว้ (เช่น Sepolia Testnet)
 4. **Smart Contract Address**
-   - ค่าเริ่มต้นในระบบถูกตั้งไว้ที่: `0x557ac564eB184482e08AfA6f3Df3c491D709C18D`
+   - ค่าเริ่มต้นในระบบถูกตั้งไว้ที่: `0x2E49eFfBbB3AE142B72933a9Df4Ef0F80fB5C3D9`
    - ผู้ใช้สามารถเปลี่ยนหรือกรอก **Contract Address** ของตนเองได้ที่ช่องตั้งค่าด้านบนสุดของหน้าเว็บได้ทันที
 
 ### โครงสร้าง Smart Contract ABI ที่รองรับ
